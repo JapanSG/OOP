@@ -8,6 +8,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  *
  * @author japan
@@ -51,6 +54,15 @@ public class Poring extends Thread{
     public void run(){
         while (frame.isVisible()){
             updateNum();
+            Point p = frame.getLocation();
+            p.x = rand.nextInt(p.x-1,p.x+2);
+            p.y = rand.nextInt(p.y-1,p.y+2);
+            frame.setLocation(p);
+            try {
+                TimeUnit.MILLISECONDS.sleep(10);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Poring.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 }
@@ -68,4 +80,12 @@ class OnClick extends MouseAdapter {
         p.master.list.remove(p);
         p.master.updatePoring();
     }
+    
+    @Override
+    public void mousePressed(MouseEvent e) {
+        p.frame.dispose();
+        p.master.list.remove(p);
+        p.master.updatePoring();
+    }  
+    
 }

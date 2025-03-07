@@ -14,7 +14,7 @@ import java.io.*;
  */
 public class ClientAChat extends ClientChat{
     public ClientAChat(){
-        super();
+        super('A');
         this.frame.setTitle("Client A");
     }
 }

@@ -22,9 +22,12 @@ public class ClientChat {
     JTextField textField;
     JButton submit;
     JScrollPane chat;
+    static ChatLog log;
+    char name;
     private final static ArrayList<ClientChat> clients = new ArrayList();
     
-    public ClientChat(){
+    public ClientChat(char name){
+        this.name = name;
         frame = new JFrame();
         frame.setSize(600,480);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -74,7 +77,14 @@ class EventHandler extends WindowAdapter implements ActionListener{
             return;
         }
         try(ObjectInputStream in = new ObjectInputStream(new FileInputStream(f))){
-            ui.textArea.setText((String)in.readObject());
+            ClientChat.log = (ChatLog)in.readObject();
+            if (ClientChat.log == null){
+                ClientChat.log = new ChatLog();
+            }
+            ui.textArea.setText(ClientChat.log.load(ui.name));
+        }
+        catch (EOFException ex){
+            ClientChat.log = new ChatLog();
         }
         catch (IOException|ClassNotFoundException ex){
             ex.printStackTrace();
@@ -86,7 +96,7 @@ class EventHandler extends WindowAdapter implements ActionListener{
     public void windowClosing(WindowEvent e) {
         File f = new File("chat_history.dat");
         try(ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f))){
-            out.writeObject(ui.textArea.getText());
+            out.writeObject(ClientChat.log);
         }
         catch (IOException ex){
             ex.printStackTrace();
@@ -100,8 +110,9 @@ class EventHandler extends WindowAdapter implements ActionListener{
        ArrayList<ClientChat> list = ClientChat.getClientList();
        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
        String date = dtf.format(LocalDateTime.now());
+       ClientChat.log.append(String.format("[%s]%s:%s\n", date, ui.name, ui.textField.getText()));
        for (ClientChat c : list){
-           c.textArea.setText(String.format("%s%s:%s\n", c.textArea.getText(), date, ui.textField.getText()));
+           c.textArea.setText(c.textArea.getText() + ClientChat.log.loadLast(c.name));
        }
        ui.textField.setText("");
     }

@@ -7,6 +7,7 @@ package week13.poring;
 import javax.swing.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.awt.*;
 /**
  *
  * @author japan
@@ -20,7 +21,8 @@ public class PoringConstructor {
         frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(200,100);
-
+        Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+        frame.setLocation((int)d.getWidth()/2, (int)d.getHeight()/2);
         add = new JButton("add");
         frame.add(add);
         frame.setVisible(true);
