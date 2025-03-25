@@ -6,6 +6,8 @@ package week13.clock;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -15,6 +17,7 @@ public class MyTimer extends JLabel implements Runnable{
     int hour;
     int min;
     int sec;
+    boolean pause = false;
     PauseTimer p = new PauseTimer();
     public MyTimer() {
         setHorizontalAlignment(CENTER);
@@ -35,17 +38,27 @@ public class MyTimer extends JLabel implements Runnable{
             hour++;
         }
     }
+    
+    public void pause(){
+        setBackground(Color.RED);
+        setForeground(Color.WHITE);
+        p.stop();
+    }
+    
+    public void unpause(){
+        p.con();
+        setForeground(Color.BLACK);
+        setBackground(Color.WHITE);
+    }
+    
     @Override
     public void run() {
         while(true){
             try {
-                p.check();
                 setText(String.format("%02d:%02d:%02d", hour,min,sec));
-                p.check();
                 Thread.sleep(1000);
-                p.check();
+                System.out.println(sec);
                 increment();
-                p.check();
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
@@ -55,25 +68,31 @@ public class MyTimer extends JLabel implements Runnable{
 class PauseTimer{
     
     boolean isPause;
-    public synchronized void check(){
-        if (isPause){
-            try {
-                wait();
-            } 
-            catch (InterruptedException ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
     
     public synchronized void con(){
         if (isPause){
-            notify();
+            this.notify();
             isPause = false;
         }
     }
     
+    public synchronized void check(){
+        if (isPause){
+            try {
+                wait();
+            }
+            catch (InterruptedException ex) {
+                Logger.getLogger(PauseTimer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
     public synchronized void stop(){
         isPause = true;
+        try {
+                wait();
+            }
+            catch (InterruptedException ex) {
+                Logger.getLogger(PauseTimer.class.getName()).log(Level.SEVERE, null, ex);
+            }
     }
 }
